@@ -15,7 +15,6 @@ class RecommendationScreen extends StatefulWidget {
 
 class _RecommendationScreenState extends State<RecommendationScreen> {
   RecommendationResponse? songs;
-  bool loading = false;
   bool opening = false;
   AudioPlayer player = AudioPlayer();
 
@@ -23,12 +22,9 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
 
   fetchSongs(String title) async {
     if (title.trim().isEmpty) return;
-
-    setState(() => loading = true);
-
+    showConnectingDialog(context,"Fetching songs for you...please wait a while"); // your dialog function
     songs = await AuthService.getSongRecommendations(title);
-
-    setState(() => loading = false);
+    Navigator.of(context, rootNavigator: true).pop();
   }
 
   @override
@@ -36,7 +32,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
     super.initState();
     AuthService.getSpotifyToken();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      showConnectingDialog(context); // your dialog function
+      showConnectingDialog(context,"Connecting to server...please wait a while"); // your dialog function
       wakeUpServer();
     });
   }
@@ -101,9 +97,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
       body:
          Stack(
            children: [
-      loading
-          ? Center(child: CircularProgressIndicator())
-          : (songs != null && songs!.recommendations.success == false)
+          (songs != null && songs!.recommendations.success == false)
           ? Center(
         child: Text(
           "Oops.. No song found with this name.",
@@ -234,7 +228,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
     }
   }
 
-  void showConnectingDialog(BuildContext context) {
+  void showConnectingDialog(BuildContext context,String text) {
     showDialog(
       context: context,
       barrierDismissible: false, // user cannot close the dialog manually
@@ -251,7 +245,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
                 const SizedBox(width: 20),
                 Expanded(
                   child: Text(
-                    "Connecting to server...please wait a while",
+                    text,
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                 )
