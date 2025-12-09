@@ -1,10 +1,10 @@
+import 'package:chillify/ui/recomendation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../provider/auth_provider.dart';
 import '../service/auth_service.dart';
 import '../widget/auth_button.dart';
 import '../widget/auth_input.dart';
-import 'main_home_page.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
@@ -52,12 +52,28 @@ class LoginScreen extends StatelessWidget {
                     if (resp) {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (_) => const MainHomePage()),
+                        MaterialPageRoute(builder: (_) =>   RecommendationScreen()),
                       );
                     }
                   },
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: (){
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const RecommendationScreen()),
+                    );
+                  },
+                  child: Text(
+                    'SKIP',
+                    style: TextStyle(
+                        color: Theme.of(context).hintColor,
+                        fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+                const SizedBox(height: 20),
                 // Toggle
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

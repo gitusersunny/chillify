@@ -37,6 +37,26 @@ dependencies:
   shared_preferences: ^2.5.3
   http: ^1.6.0
   fluttertoast: ^9.0.0
+  just_audio: ^0.10.5
+  audio_session: ^0.2.2
+  permission_handler: ^12.0.1
+  path_provider: ^2.1.5
+  audio_service: ^0.18.18
+  url_launcher: ^6.3.2
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  # General configuration for both platforms
+  image_path: "assets/images/chillify_logo.png"
+
+  # Platform-specific settings
+  android: "launcher_icon" # Set to true to use image_path, or a custom name like "launcher_icon"
+  ios: true # Set to true to use image_path
+
+  # For Adaptive Icons on modern Android devices (highly recommended)
+  # You'll need two images: a background (color or image) and a foreground layer
+  # adaptive_icon_background: "#ffffff" # or an image path like "assets/images/background.png"
+  # adaptive_icon_foreground: "assets/images/foreground.png"
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +82,15 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/chillify_logo.png
+    - assets/images/music_cover.png
+
+
+   # Set to true to use image_path
+
+    # For Adaptive Icons on modern Android devices (highly recommended)
+    # You'll need two images: a background (color or image) and a foreground layer
+    # adaptive_icon_background: "#ffffff" # or an image path like "assets/images/background.png"
+    # adaptive_icon_foreground: "assets/images/foreground.png"
 
   # To add assets to your application, add an assets section, like this:
   # assets:

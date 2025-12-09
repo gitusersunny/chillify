@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:chillify/ui/main_home_page.dart';
+import 'package:chillify/ui/recomendation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widget/music_auth_app.dart';
+
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -22,14 +24,14 @@ class _LandingPageState extends State<LandingPage> {
     await Future.delayed(const Duration(seconds: 2)); // 2 sec splash delay
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool isLogin = prefs.getBool("isLogin") ?? false;
+    bool isLogin = prefs.getBool("loggedIn") ?? false;
 
     if (!mounted) return;
 
     if (isLogin) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const MainHomePage()),
+        MaterialPageRoute(builder: (_) => const RecommendationScreen()),
       );
     } else {
       Navigator.pushReplacement(
