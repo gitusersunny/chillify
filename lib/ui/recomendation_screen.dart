@@ -23,8 +23,9 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
   fetchSongs(String title) async {
     if (title.trim().isEmpty) return;
     showConnectingDialog(context,"Fetching songs for you...please wait a while"); // your dialog function
-    songs = await AuthService.getSongRecommendations(title);
-    Navigator.of(context, rootNavigator: true).pop();
+      songs = await AuthService.getSongRecommendations(title);
+      Navigator.of(context, rootNavigator: true).pop();
+    setState(() {});
   }
 
   @override
