@@ -83,6 +83,7 @@ flutter:
   assets:
     - assets/images/chillify_logo.png
     - assets/images/music_cover.png
+    - assets/images/mood.png
 
 
    # Set to true to use image_path

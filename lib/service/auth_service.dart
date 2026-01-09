@@ -112,7 +112,7 @@ class AuthService {
   }
 
 
-  static Future<RecommendationResponse> getSongRecommendations(String title) async {
+  static Future<RecommendationResponse> getSongRecommendations(String title,String mood) async {
     final url = Uri.parse("https://chillify-backend.onrender.com/recommend");
     final response = await http.post(
       url,
@@ -121,6 +121,7 @@ class AuthService {
       },
       body: jsonEncode({
         "song_name": title,
+        "mood": mood,
       }),
     );
     final data = jsonDecode(response.body);

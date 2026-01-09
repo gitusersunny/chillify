@@ -1,14 +1,17 @@
 class RecommendationResponse {
   final String song;
+  final bool mood;
   final RecommendationData recommendations;
 
   RecommendationResponse({
+    required this.mood,
     required this.song,
     required this.recommendations,
   });
 
   factory RecommendationResponse.fromJson(Map<String, dynamic> json) {
     return RecommendationResponse(
+      mood: json["isMood"],
       song: json["song"],
       recommendations: RecommendationData.fromJson(json["recommendations"]),
     );
