@@ -1,157 +1,107 @@
-class SpotifySearchResponse {
-  final Tracks tracks;
+// lib/models/music_search_response.dart
+class MusicSearchResponse {
+  final List<Track> tracks;
 
-  SpotifySearchResponse({required this.tracks});
+  MusicSearchResponse({required this.tracks});
 
-  factory SpotifySearchResponse.fromJson(Map<String, dynamic> json) {
-    return SpotifySearchResponse(
-      tracks: Tracks.fromJson(json['tracks']),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    'tracks': tracks.toJson(),
-  };
-}
-class Tracks {
-  final String href;
-  final int limit;
-  final String? next;
-  final int offset;
-  final String? previous;
-  final int total;
-  final List<TrackItem> items;
-
-  Tracks({
-    required this.href,
-    required this.limit,
-    this.next,
-    required this.offset,
-    this.previous,
-    required this.total,
-    required this.items,
-  });
-
-  factory Tracks.fromJson(Map<String, dynamic> json) {
-    return Tracks(
-      href: json['href'],
-      limit: json['limit'],
-      next: json['next'],
-      offset: json['offset'],
-      previous: json['previous'],
-      total: json['total'],
-      items: (json['items'] as List)
-          .map((i) => TrackItem.fromJson(i))
+  factory MusicSearchResponse.fromJson(Map<String, dynamic> json) {
+    return MusicSearchResponse(
+      tracks: (json['tracks'] as List)
+          .map((track) => Track.fromJson(track))
           .toList(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'href': href,
-    'limit': limit,
-    'next': next,
-    'offset': offset,
-    'previous': previous,
-    'total': total,
-    'items': items.map((e) => e.toJson()).toList(),
+    'tracks': tracks.map((track) => track.toJson()).toList(),
   };
 }
-class TrackItem {
-  final int discNumber;
-  final int durationMs;
-  final bool explicit;
-  final ExternalIds externalIds;
-  final ExternalUrls externalUrls;
-  final String href;
-  final String id;
-  final bool isLocal;
-  final bool isPlayable;
-  final String name;
-  final int popularity;
-  final String? previewUrl;
-  final int trackNumber;
-  final String type;
-  final String uri;
 
-  TrackItem({
-    required this.discNumber,
-    required this.durationMs,
-    required this.explicit,
-    required this.externalIds,
-    required this.externalUrls,
-    required this.href,
-    required this.id,
-    required this.isLocal,
-    required this.isPlayable,
-    required this.name,
-    required this.popularity,
-    this.previewUrl,
-    required this.trackNumber,
+// lib/models/track.dart
+class Track {
+  final String source;
+  final String status;
+  final TrackData data;
+  final String type;
+
+  Track({
+    required this.source,
+    required this.status,
+    required this.data,
     required this.type,
-    required this.uri,
   });
 
-  factory TrackItem.fromJson(Map<String, dynamic> json) {
-    return TrackItem(
-      discNumber: json['disc_number'],
-      durationMs: json['duration_ms'],
-      explicit: json['explicit'],
-      externalIds: ExternalIds.fromJson(json['external_ids']),
-      externalUrls: ExternalUrls.fromJson(json['external_urls']),
-      href: json['href'],
-      id: json['id'],
-      isLocal: json['is_local'],
-      isPlayable: json['is_playable'],
-      name: json['name'],
-      popularity: json['popularity'],
-      previewUrl: json['preview_url'],
-      trackNumber: json['track_number'],
+  factory Track.fromJson(Map<String, dynamic> json) {
+    return Track(
+      source: json['source'],
+      status: json['status'],
+      data: TrackData.fromJson(json['data']),
       type: json['type'],
-      uri: json['uri'],
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'disc_number': discNumber,
-    'duration_ms': durationMs,
-    'explicit': explicit,
-    'external_ids': externalIds.toJson(),
-    'external_urls': externalUrls.toJson(),
-    'href': href,
-    'id': id,
-    'is_local': isLocal,
-    'is_playable': isPlayable,
-    'name': name,
-    'popularity': popularity,
-    'preview_url': previewUrl,
-    'track_number': trackNumber,
+    'source': source,
+    'status': status,
+    'data': data.toJson(),
     'type': type,
-    'uri': uri,
   };
 }
-class ExternalIds {
-  final String isrc;
 
-  ExternalIds({required this.isrc});
+// lib/models/track_data.dart
+class TrackData {
+  final String externalId;
+  final String? previewUrl;
+  final String name;
+  final List<String> artistNames;
+  final String albumName;
+  final String imageUrl;
+  final String? isrc;
+  final int duration;
+  final String url;
 
-  factory ExternalIds.fromJson(Map<String, dynamic> json) {
-    return ExternalIds(isrc: json['isrc']);
+  TrackData({
+    required this.externalId,
+    this.previewUrl,
+    required this.name,
+    required this.artistNames,
+    required this.albumName,
+    required this.imageUrl,
+    this.isrc,
+    required this.duration,
+    required this.url,
+  });
+
+  factory TrackData.fromJson(Map<String, dynamic> json) {
+    return TrackData(
+      externalId: json['externalId'],
+      previewUrl: json['previewUrl'],
+      name: json['name'],
+      artistNames: List<String>.from(json['artistNames']),
+      albumName: json['albumName'],
+      imageUrl: json['imageUrl'],
+      isrc: json['isrc'],
+      duration: json['duration'],
+      url: json['url'],
+    );
   }
 
   Map<String, dynamic> toJson() => {
+    'externalId': externalId,
+    'previewUrl': previewUrl,
+    'name': name,
+    'artistNames': artistNames,
+    'albumName': albumName,
+    'imageUrl': imageUrl,
     'isrc': isrc,
+    'duration': duration,
+    'url': url,
   };
-}
-class ExternalUrls {
-  final String spotify;
 
-  ExternalUrls({required this.spotify});
-
-  factory ExternalUrls.fromJson(Map<String, dynamic> json) {
-    return ExternalUrls(spotify: json['spotify']);
+  // Helper method to get formatted duration
+  String getFormattedDuration() {
+    final minutes = duration ~/ 60000;
+    final seconds = (duration % 60000) ~/ 1000;
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
-
-  Map<String, dynamic> toJson() => {
-    'spotify': spotify,
-  };
 }

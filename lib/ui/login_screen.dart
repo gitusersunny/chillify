@@ -62,7 +62,7 @@ class LoginScreen extends StatelessWidget {
                   onTap: (){
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (_) => const RecommendationScreen()),
+                      MaterialPageRoute(builder: (_) =>   RecommendationScreen()),
                     );
                   },
                   child: Text(

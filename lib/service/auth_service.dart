@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/recommendData.dart';
+import '../data/searchReq.dart';
 import 'local_storage_service.dart';
 
 class AuthService {
@@ -71,33 +72,7 @@ class AuthService {
     }
   }
 
-  static void getSpotifyToken() async {
-    final url = Uri.parse("https://accounts.spotify.com/api/token");
-
-    final headers = {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Authorization": "Basic ${base64Encode(utf8.encode("9bb9139991cf4ec5aac2f27bcc1038f7:cb6db17826f94dca9aaafa5db4cf9bf6"))}",
-    };
-
-    final body = {
-      "grant_type": "client_credentials",
-    };
-
-    final response = await http.post(
-      url,
-      headers: headers,
-      body: body,
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString("spotify_token", data["access_token"]);
-    }
-
-    print("Error: ${response.statusCode} - ${response.body}");
-  }
-
+  //hit api for wake up server
   static Future<Map<String, dynamic>> wakeUpServer() async {
     final url = Uri.parse("https://chillify-backend.onrender.com/");
 
@@ -128,22 +103,28 @@ class AuthService {
     return RecommendationResponse.fromJson(data);
   }
 
-  static Future<SpotifySearchResponse?> searchSpotifyTrack(String query, String token) async {
-    final url = Uri.parse(
-        "https://api.spotify.com/v1/search?offset=0&limit=1&query=$query&type=track");
+  static const String token = '28ca3c45-6119-4690-8f44-1f49d663bb94';
 
-    final headers = {
-      "Authorization": "Bearer $token",
-    };
+ static Future<MusicSearchResponse> searchTrack(MusicSearchRequest request) async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://api.musicapi.com/public/search'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Token $token',
+        },
+        body: jsonEncode(request.toJson()),
+      );
 
-    final response = await http.get(url, headers: headers);
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return SpotifySearchResponse.fromJson(data);
-    } else {
-      print("Error: ${response.statusCode} - ${response.body}");
-      return null;
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        return MusicSearchResponse.fromJson(responseData);
+      } else {
+        throw Exception('Failed to search track: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error searching track: $e');
     }
   }
 

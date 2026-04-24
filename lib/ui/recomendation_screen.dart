@@ -1,11 +1,10 @@
-import 'package:chillify/data/spotifySearchResp.dart';
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../data/mood.dart';
 import '../data/recommendData.dart';
+import '../data/searchReq.dart';
 import '../service/auth_service.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:just_audio/just_audio.dart' as gap;
 
 class RecommendationScreen extends StatefulWidget {
   const RecommendationScreen({super.key});
@@ -17,9 +16,8 @@ class RecommendationScreen extends StatefulWidget {
 class _RecommendationScreenState extends State<RecommendationScreen> {
   RecommendationResponse? songs;
   bool opening = false;
-  AudioPlayer player = AudioPlayer();
-
   TextEditingController searchController = TextEditingController();
+  final gap.AudioPlayer player = gap.AudioPlayer();
 
   fetchSongs(String title,String mood) async {
     if (title.trim().isEmpty) return;
@@ -32,18 +30,57 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
   @override
   void initState() {
     super.initState();
-    AuthService.getSpotifyToken();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showConnectingDialog(context,"Connecting to server...please wait a while"); // your dialog function
       wakeUpServer();
     });
   }
 
-
   void wakeUpServer() async{
     Map<String, dynamic> res = await AuthService.wakeUpServer();
     if (res.isNotEmpty){
       Navigator.of(context, rootNavigator: true).pop();
+    }
+  }
+
+  void requestForSearch(song,artist) async{
+    final request = MusicSearchRequest(
+      track: song,
+      artist: artist,
+      type: 'track',
+      sources: ['spotify'],
+    );
+
+    final result = await AuthService.searchTrack(request);
+    openSpotifyDynamic(result.tracks[0].data.url);
+  }
+  
+  Future<void> openSpotifyDynamic(String url) async {
+    try {
+      final Uri uri = Uri.parse(url);
+
+      // Example path: /track/{id} OR /album/{id} OR /playlist/{id}
+      final segments = uri.pathSegments;
+
+      if (segments.length < 2) {
+        throw Exception("Invalid Spotify URL");
+      }
+
+      final type = segments[0]; // track / album / playlist
+      final id = segments[1];
+
+      // Build deep link
+      final Uri appUri = Uri.parse("spotify:$type:$id");
+
+      // Try opening Spotify app
+      if (await canLaunchUrl(appUri)) {
+        await launchUrl(appUri);
+      } else {
+        // fallback to browser
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      print("Error opening Spotify: $e");
     }
   }
 
@@ -71,8 +108,8 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
               },
               icon: Image.asset(
                 'assets/images/mood.png',
-                width: 24,
-                height: 24,
+                width: 34,
+                height: 34,
               ),
             ),
           ],
@@ -171,8 +208,10 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
                         style: TextStyle(color: Colors.grey[700]),
                       ),
                       trailing: Icon(Icons.arrow_forward_ios),
-                      onTap: () {
-                        openSpotify(songs!.recommendations.recommendations[0].trackName);
+                        // In your Widget
+                      onTap: () async {
+                        requestForSearch(songs!.recommendations.recommendations[0].trackName.toLowerCase(),
+                            songs!.recommendations.recommendations[0].artists.toLowerCase());
                       },
                     ),
                   ),
@@ -217,8 +256,10 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
                     ),
 
                     trailing: const Icon(Icons.arrow_forward_ios),
-
-                    onTap: () => openSpotify(s.trackName),
+                     // In your Widget
+                    onTap: () async {
+                      requestForSearch( s.trackName.toLowerCase(),s.artists.toLowerCase());
+                    },
                   ),
                 );
               },
@@ -233,29 +274,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
     );
   }
 
-  Future<void> openSpotify(String trackName) async {
 
-    setState(() => opening = true);
-
-    final token = (await SharedPreferences.getInstance()).getString("spotify_token");
-
-   SpotifySearchResponse? res = await AuthService.searchSpotifyTrack(trackName,token ?? "");
-
-   if (res!=null){
-     Future.microtask(() async {
-       final uri = Uri.parse(res.tracks.items[0].uri);
-       if (await canLaunchUrl(uri)) {
-         await launchUrl(uri, mode: LaunchMode.externalApplication);
-       } else {
-         final webUrl = Uri.parse(res.tracks.items[0].externalUrls.spotify);
-         await launchUrl(webUrl, mode: LaunchMode.externalApplication);
-       }
-     });
-   }
-    if (mounted) {
-      setState(() => opening = false);
-    }
-  }
 
   void showConnectingDialog(BuildContext context,String text) {
     showDialog(
