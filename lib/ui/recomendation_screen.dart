@@ -22,7 +22,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
   fetchSongs(String title,String mood) async {
     if (title.trim().isEmpty) return;
     showConnectingDialog(context,"Fetching songs for you...please wait a while"); // your dialog function
-      songs = await AuthService.getSongRecommendations(title,mood);
+      songs = await AuthService.getSongRecommendations(title);
       Navigator.of(context, rootNavigator: true).pop();
     setState(() {});
   }
@@ -157,7 +157,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
       body:
          Stack(
            children: [
-          (songs != null && songs!.recommendations.success == false)
+          (songs != null && songs!.success == false)
           ? Center(
         child: Text(
           "Oops.. No song found with this name.",
@@ -177,47 +177,13 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
 
           // ⭐ SEARCHED SONG SECTION ⭐
           if (songs != null &&
-              songs!.mood == false &&
-              songs!.recommendations.recommendations.isNotEmpty)
+              songs!.recommendations.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "You searched for",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  Card(
-                    elevation: 3,
-                    child: ListTile(
-                      leading: Icon(Icons.music_note, size: 40, color: Colors.purple),
-                      title: Text(
-                        songs!.recommendations.recommendations[0].trackName,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(
-                        songs!.recommendations.recommendations[0].artists,
-                        style: TextStyle(color: Colors.grey[700]),
-                      ),
-                      trailing: Icon(Icons.arrow_forward_ios),
-                        // In your Widget
-                      onTap: () async {
-                        requestForSearch(songs!.recommendations.recommendations[0].trackName.toLowerCase(),
-                            songs!.recommendations.recommendations[0].artists.toLowerCase());
-                      },
-                    ),
-                  ),
-
                   SizedBox(height: 15),
-
                   Text(
                     "Recommended Songs",
                     style: TextStyle(
@@ -232,13 +198,9 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
           // ⭐ RECOMMEND LIST (excluding index 0)
           Expanded(
             child: ListView.builder(
-              itemCount: songs!.mood == true
-                  ? songs!.recommendations.recommendations.length
-                  : songs!.recommendations.recommendations.length - 1,
+              itemCount: songs!.recommendations.length,
               itemBuilder: (context, i) {
-                final s = songs!.mood == true
-                    ? songs!.recommendations.recommendations[i]
-                    : songs!.recommendations.recommendations[i + 1];
+                final s = songs!.recommendations[i];
 
                 return Card(
                   margin: const EdgeInsets.all(10),
